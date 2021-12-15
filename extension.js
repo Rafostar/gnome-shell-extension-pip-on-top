@@ -4,6 +4,10 @@
  */
 
 const { Meta } = imports.gi;
+const ExtensionUtils = imports.misc.extensionUtils;
+
+const Gettext = imports.gettext.domain('pip-on-top');
+const _ = Gettext.gettext;
 
 class PipOnTop
 {
@@ -97,7 +101,10 @@ class PipOnTop
     if (!window.title)
       return;
 
+    /* Check both translated and untranslated string for
+     * users that prefer running applications in English */
     let isPipWin = (window.title == 'Picture-in-Picture'
+      || window.title == _('Picture-in-Picture')
       || window.title.endsWith(' - PiP'));
 
     if (isPipWin || window._isPipAble) {
@@ -111,5 +118,6 @@ class PipOnTop
 
 function init()
 {
+  ExtensionUtils.initTranslations();
   return new PipOnTop();
 }
