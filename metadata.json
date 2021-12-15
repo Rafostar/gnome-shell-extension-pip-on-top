@@ -1,0 +1,16 @@
+{
+  "description": "Makes \"Picture-in-Picture\" windows stay on top (even on Wayland session). Compatible with Firefox and Clapper media player.",
+  "extension-id": "pip-on-top",
+  "gettext-domain": "pip-on-top",
+  "name": "PiP on top",
+  "settings-schema": "org.gnome.shell.extensions.pip-on-top",
+  "shell-version": [
+    "3.36",
+    "3.38",
+    "40",
+    "41"
+  ],
+  "url": "https://github.com/Rafostar/gnome-shell-extension-pip-on-top",
+  "uuid": "pip-on-top@rafostar.github.com",
+  "version": 1
+}
