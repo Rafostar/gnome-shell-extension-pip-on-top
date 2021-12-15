@@ -36,10 +36,18 @@ class PipOnTop
     this._windowAddedId = 0;
     this._windowRemovedId = 0;
 
-    let windows = global.get_window_actors();
+    let actors = global.get_window_actors();
+    if (actors) {
+      for (let actor of actors) {
+        let window = actor.meta_window;
+        if (!window) continue;
 
-    for (let window of windows)
-      this._onWindowRemoved(null, window);
+        if (window._isPipAble && window.above)
+          window.unmake_above();
+
+        this._onWindowRemoved(null, window);
+      }
+    }
   }
 
   _onSwitchWorkspace()
