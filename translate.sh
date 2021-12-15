@@ -1,3 +1,5 @@
+#!/bin/sh
+
 TRANSLATIONS_PATH="pub/firefox/releases/95.0/linux-x86_64/xpi/"
 TRANSLATIONS_URI="https://ftp.mozilla.org/$TRANSLATIONS_PATH"
 LANG_PACKS=$(curl -s "$TRANSLATIONS_URI" | grep -Po "(?<=$TRANSLATIONS_PATH).*?(?=\.xpi)")
@@ -44,3 +46,6 @@ while IFS= read -r LINE; do
   create_po_file
   echo "Done \"$LANG\" translation" && echo
 done <<< "$LANG_PACKS"
+
+rm "$TEMP_FILE"
+echo "All done!"
