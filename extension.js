@@ -3,6 +3,8 @@
  * Developer: Rafostar
  */
 
+const { Meta } = imports.gi;
+
 class PipOnTop
 {
   constructor()
@@ -43,6 +45,7 @@ class PipOnTop
   _onSwitchWorkspace()
   {
     let workspace = global.workspace_manager.get_active_workspace();
+    let wsWindows = global.display.get_tab_list(Meta.TabList.NORMAL, workspace);
 
     if (this._lastWorkspace) {
       this._lastWorkspace.disconnect(this._windowAddedId);
@@ -54,6 +57,12 @@ class PipOnTop
       'window-added', this._onWindowAdded.bind(this));
     this._windowRemovedId = this._lastWorkspace.connect(
       'window-removed', this._onWindowRemoved.bind(this));
+
+    /* Update state on already present windows */
+    if (wsWindows) {
+      for (let window of wsWindows)
+        this._onWindowAdded(workspace, window);
+    }
   }
 
   _onWindowAdded(workspace, window)
@@ -62,6 +71,7 @@ class PipOnTop
       window._notifyPipTitleId = window.connect_after(
         'notify::title', this._checkTitle.bind(this));
     }
+    this._checkTitle(window);
   }
 
   _onWindowRemoved(workspace, window)
@@ -76,6 +86,9 @@ class PipOnTop
 
   _checkTitle(window)
   {
+    if (!window.title)
+      return;
+
     let isPipWin = (window.title == 'Picture-in-Picture'
       || window.title.endsWith(' - PiP'));
 
