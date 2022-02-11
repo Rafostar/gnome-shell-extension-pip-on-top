@@ -1,7 +1,9 @@
 # gnome-shell-extension-pip-on-top
 Makes "Picture-in-Picture" windows stay on top (even on Wayland session). Compatible with Firefox and Clapper media player.
 
-### Installation from source code
+[<img src="https://camo.githubusercontent.com/4f1e6d9a2288e9914688d4423892e930f814c7fd10b4ca3a704fe2d3ea927410/68747470733a2f2f6d696368656c65672e6769746875622e696f2f646173682d746f2d646f636b2f6d656469612f6765742d69742d6f6e2d65676f2e706e67" width="25%" height="25%">](https://extensions.gnome.org/extension/4691/pip-on-top)
+
+## Installation from source code
 Run below in terminal one by one:
 ```sh
 mkdir -p ~/.local/share/gnome-shell/extensions
