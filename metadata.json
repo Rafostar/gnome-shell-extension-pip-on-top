@@ -8,9 +8,10 @@
     "3.36",
     "3.38",
     "40",
-    "41"
+    "41",
+    "42"
   ],
   "url": "https://github.com/Rafostar/gnome-shell-extension-pip-on-top",
   "uuid": "pip-on-top@rafostar.github.com",
-  "version": 1
+  "version": 2
 }
