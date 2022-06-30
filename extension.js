@@ -103,9 +103,9 @@ class PipOnTop
 
     /* Check both translated and untranslated string for
      * users that prefer running applications in English */
-    let isPipWin = (window.title == 'Picture-in-Picture'
+    let isPipWin = (window.title.toLowerCase() == 'picture-in-picture'
       || window.title == _('Picture-in-Picture')
-      || window.title == 'Picture in picture'
+      || window.title.toLowerCase() == 'picture in picture'
       || window.title.endsWith(' - PiP'));
 
     if (isPipWin || window._isPipAble) {
