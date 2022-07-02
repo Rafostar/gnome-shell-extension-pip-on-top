@@ -106,6 +106,7 @@ class PipOnTop
     let isPipWin = (window.title == 'Picture-in-Picture'
       || window.title == _('Picture-in-Picture')
       || window.title == 'Picture in picture'
+      || window.title == 'Picture-in-picture'
       || window.title.endsWith(' - PiP'));
 
     if (isPipWin || window._isPipAble) {
