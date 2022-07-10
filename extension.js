@@ -13,7 +13,11 @@ class PipOnTop
 {
   constructor()
   {
+    this.settings = ExtensionUtils.getSettings(
+      'org.gnome.shell.extensions.pip-on-top');
+
     this._lastWorkspace = null;
+    this._settingsChangedId = 0;
     this._switchWorkspaceId = 0;
     this._windowAddedId = 0;
     this._windowRemovedId = 0;
@@ -21,6 +25,9 @@ class PipOnTop
 
   enable()
   {
+    this._settingsChangedId = this.settings.connect(
+      'changed', this._onSettingsChanged.bind(this));
+
     this._switchWorkspaceId = global.window_manager.connect_after(
       'switch-workspace', this._onSwitchWorkspace.bind(this));
     this._onSwitchWorkspace();
@@ -28,6 +35,8 @@ class PipOnTop
 
   disable()
   {
+    this.settings.disconnect(this._settingsChangedId);
+
     global.window_manager.disconnect(this._switchWorkspaceId);
 
     if (this._lastWorkspace) {
@@ -36,6 +45,7 @@ class PipOnTop
     }
 
     this._lastWorkspace = null;
+    this._settingsChangedId = 0;
     this._switchWorkspaceId = 0;
     this._windowAddedId = 0;
     this._windowRemovedId = 0;
@@ -46,11 +56,27 @@ class PipOnTop
         let window = actor.meta_window;
         if (!window) continue;
 
-        if (window._isPipAble && window.above)
-          window.unmake_above();
+        if (window._isPipAble) {
+          if (window.above)
+            window.unmake_above();
+          if (window.on_all_workspaces)
+            window.unstick();
+        }
 
         this._onWindowRemoved(null, window);
       }
+    }
+  }
+
+  _onSettingsChanged(settings, key)
+  {
+    switch (key) {
+      case 'stick':
+        /* Updates already present windows */
+        this._onSwitchWorkspace();
+        break;
+      default:
+        break;
     }
   }
 
@@ -114,6 +140,10 @@ class PipOnTop
 
       window._isPipAble = true;
       window[`${un}make_above`]();
+
+      /* Change stick if enabled or unstick PipAble windows */
+      un = (isPipWin && this.settings.get_boolean('stick')) ? '' : 'un';
+      window[`${un}stick`]();
     }
   }
 }

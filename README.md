@@ -9,6 +9,8 @@ Run below in terminal one by one:
 mkdir -p ~/.local/share/gnome-shell/extensions
 cd ~/.local/share/gnome-shell/extensions
 git clone "https://github.com/Rafostar/gnome-shell-extension-pip-on-top.git" "pip-on-top@rafostar.github.com"
+cd pip-on-top@rafostar.github.com
+glib-compile-schemas ./schemas/
 ```
 Additionally if you are running Firefox not in English language, execute `translate.sh` script to generate required translations:
 ```sh

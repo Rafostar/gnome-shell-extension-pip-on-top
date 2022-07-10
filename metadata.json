@@ -5,13 +5,9 @@
   "name": "PiP on top",
   "settings-schema": "org.gnome.shell.extensions.pip-on-top",
   "shell-version": [
-    "3.36",
-    "3.38",
-    "40",
-    "41",
     "42"
   ],
   "url": "https://github.com/Rafostar/gnome-shell-extension-pip-on-top",
   "uuid": "pip-on-top@rafostar.github.com",
-  "version": 2
+  "version": 3
 }
