@@ -11,20 +11,14 @@ const _ = Gettext.gettext;
 
 class PipOnTop
 {
-  constructor()
-  {
-    this.settings = ExtensionUtils.getSettings(
-      'org.gnome.shell.extensions.pip-on-top');
-
-    this._lastWorkspace = null;
-    this._settingsChangedId = 0;
-    this._switchWorkspaceId = 0;
-    this._windowAddedId = 0;
-    this._windowRemovedId = 0;
-  }
-
   enable()
   {
+    this._lastWorkspace = null;
+    this._windowAddedId = 0;
+    this._windowRemovedId = 0;
+
+    this.settings = ExtensionUtils.getSettings(
+      'org.gnome.shell.extensions.pip-on-top');
     this._settingsChangedId = this.settings.connect(
       'changed', this._onSettingsChanged.bind(this));
 
@@ -36,6 +30,7 @@ class PipOnTop
   disable()
   {
     this.settings.disconnect(this._settingsChangedId);
+    this.settings = null;
 
     global.window_manager.disconnect(this._switchWorkspaceId);
 
