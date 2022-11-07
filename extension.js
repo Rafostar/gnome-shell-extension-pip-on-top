@@ -128,7 +128,9 @@ class PipOnTop
       || window.title == _('Picture-in-Picture')
       || window.title == 'Picture in picture'
       || window.title == 'Picture-in-picture'
-      || window.title.endsWith(' - PiP'));
+      || window.title.endsWith(' - PiP')
+      /* Telegram support */
+      || window.title == 'TelegramDesktop');
 
     if (isPipWin || window._isPipAble) {
       let un = (isPipWin) ? '' : 'un';
