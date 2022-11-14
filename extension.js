@@ -5,6 +5,7 @@
 
 const { Meta } = imports.gi;
 const ExtensionUtils = imports.misc.extensionUtils;
+const GLib = imports.gi.GLib;
 
 const Gettext = imports.gettext.domain('pip-on-top');
 const _ = Gettext.gettext;
@@ -21,6 +22,8 @@ class PipOnTop
       'org.gnome.shell.extensions.pip-on-top');
     this._settingsChangedId = this.settings.connect(
       'changed', this._onSettingsChanged.bind(this));
+
+    this._lastWindowRect = JSON.parse(this.settings.get_string("saved-window"));
 
     this._switchWorkspaceId = global.window_manager.connect_after(
       'switch-workspace', this._onSwitchWorkspace.bind(this));
@@ -45,6 +48,11 @@ class PipOnTop
     this._windowAddedId = 0;
     this._windowRemovedId = 0;
 
+    if (this._saveTimerId) {
+      GLib.Source.remove(this._saveTimerId);
+      this._saveTimerId = null;
+    }
+
     let actors = global.get_window_actors();
     if (actors) {
       for (let actor of actors) {
@@ -56,6 +64,10 @@ class PipOnTop
             window.unmake_above();
           if (window.on_all_workspaces)
             window.unstick();
+          if (window._overrideTimeoutId) {
+            GLib.Source.remove(window._overrideTimeoutId);
+            window._overrideTimeoutId = null;
+          }
         }
 
         this._onWindowRemoved(null, window);
@@ -104,6 +116,15 @@ class PipOnTop
       window._notifyPipTitleId = window.connect_after(
         'notify::title', this._checkTitle.bind(this));
     }
+    if (!window._windowPositionChangedId) {
+      window._windowPositionChangedId = window.connect_after(
+        'position-changed', this._onWindowChanged.bind(this));
+    }
+    if (!window._windowSizeChangedId) {
+      window._windowSizeChangedId = window.connect_after(
+        'size-changed', this._onWindowChanged.bind(this));
+    }
+
     this._checkTitle(window);
   }
 
@@ -112,6 +133,14 @@ class PipOnTop
     if (window._notifyPipTitleId) {
       window.disconnect(window._notifyPipTitleId);
       window._notifyPipTitleId = null;
+    }
+    if (window._windowPositionChangedId) {
+      window.disconnect(window._windowPositionChangedId);
+      window._windowPositionChangedId = null;
+    }
+    if (window._windowSizeChangedId) {
+      window.disconnect(window._windowSizeChangedId);
+      window._windowSizeChangedId = null;
     }
     if (window._isPipAble)
       window._isPipAble = null;
@@ -141,7 +170,54 @@ class PipOnTop
       /* Change stick if enabled or unstick PipAble windows */
       un = (isPipWin && this.settings.get_boolean('stick')) ? '' : 'un';
       window[`${un}stick`]();
+
+      /* Repeatedly override new window position so it sticks */
+      window._overrideTimeoutId = GLib.timeout_add(GLib.PRIORITY_DEFAULT, 1000, () => {
+        window._overrideTimeoutId = null;
+        return false;
+      });
     }
+  }
+
+  _onWindowChanged(window)
+  {
+    if (!window._isPipAble)
+      return;
+
+    /* Override new window position and size until timeout */
+    if (window._overrideTimeoutId) {
+      let last = this._lastWindowRect;
+      let current = window.get_frame_rect();
+      /* Change position independently of size to avoid aspect
+       * ratio lock interference */
+      window.move_resize_frame(false, last.x, last.y,
+                               current.width, current.height);
+      /* Only care about height but width also needs to be applied
+       * to avoid window shrinking (Firefox Bug 1794577) */
+      window.move_resize_frame(false, last.x, last.y,
+                               last.width, last.height);
+    } else {
+      this._lastWindowRect = window.get_frame_rect();
+      this._lazySaveSettings();
+    }
+  }
+
+  _lazySaveSettings()
+  {
+    if (this._saveTimerId)
+      return;
+
+    this._saveTimerId = GLib.timeout_add_seconds(GLib.PRIORITY_DEFAULT, 5, () => {
+      let rect = this._lastWindowRect;
+      this.settings.set_string("saved-window", JSON.stringify({
+        x: rect.x,
+        y: rect.y,
+        width: rect.width,
+        height: rect.height
+      }));
+      this._saveTimerId = null;
+      return false;
+    });
   }
 }
 
