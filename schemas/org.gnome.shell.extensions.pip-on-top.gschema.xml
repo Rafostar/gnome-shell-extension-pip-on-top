@@ -5,7 +5,7 @@
       <default>false</default>
     </key>
     <key name="saved-window" type="s">
-      <default>'{}'</default>
+      <default>'null'</default>
       <summary>Saved Window</summary>
       <description>Persisted window data serialized to JSON.</description>
     </key>

@@ -186,16 +186,18 @@ class PipOnTop
 
     /* Override new window position and size until timeout */
     if (window._overrideTimeoutId) {
-      let last = this._lastWindowRect;
-      let current = window.get_frame_rect();
-      /* Change position independently of size to avoid aspect
-       * ratio lock interference */
-      window.move_resize_frame(false, last.x, last.y,
-                               current.width, current.height);
-      /* Only care about height but width also needs to be applied
-       * to avoid window shrinking (Firefox Bug 1794577) */
-      window.move_resize_frame(false, last.x, last.y,
-                               last.width, last.height);
+      if (this._lastWindowRect) {
+        let last = this._lastWindowRect;
+        let current = window.get_frame_rect();
+        /* Change position independently of size to avoid aspect
+         * ratio lock interference */
+        window.move_resize_frame(false, last.x, last.y,
+                                 current.width, current.height);
+        /* Only care about height but width also needs to be applied
+         * to avoid window shrinking (Firefox Bug 1794577) */
+        window.move_resize_frame(false, last.x, last.y,
+                                 last.width, last.height);
+      }
     } else {
       this._lastWindowRect = window.get_frame_rect();
       this._lazySaveSettings();
