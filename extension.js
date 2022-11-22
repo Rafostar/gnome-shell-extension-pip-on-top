@@ -134,6 +134,10 @@ class PipOnTop
         window.disconnect(window._windowSizeChangedId);
         window._windowSizeChangedId = null;
       }
+      if (window._overrideTimeoutId) {
+        GLib.source_remove(window._overrideTimeoutId);
+        window._overrideTimeoutId = null;
+      }
       window._isPipAble = null;
     }
   }
