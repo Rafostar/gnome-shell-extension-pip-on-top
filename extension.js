@@ -174,8 +174,14 @@ class PipOnTop
       }
 
       window._overrideTimeoutId = GLib.timeout_add(GLib.PRIORITY_DEFAULT, 1000, () => {
+        /* Change size one final time to avoid shrinking when overlapping with
+         * other "Always on top" windows. */
+        if (this._lastWindowRect) {
+          let last = this._lastWindowRect;
+          window.move_resize_frame(false, last.x, last.y, last.width, last.height);
+        }
         window._overrideTimeoutId = null;
-        return false;
+        return GLib.SOURCE_REMOVE;
       });
     }
   }
