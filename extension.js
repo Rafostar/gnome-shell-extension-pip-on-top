@@ -173,7 +173,7 @@ class PipOnTop
           'size-changed', this._onWindowChanged.bind(this, window, 'size'));
       }
 
-      window._overrideTimeoutId = GLib.timeout_add(GLib.PRIORITY_DEFAULT, 1000, () => {
+      window._overrideTimeoutId = GLib.timeout_add(GLib.PRIORITY_DEFAULT, 500, () => {
         /* Change size one final time to avoid shrinking when overlapping with
          * other "Always on top" windows. */
         if (this._lastWindowRect) {
