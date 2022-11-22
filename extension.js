@@ -3,9 +3,8 @@
  * Developer: Rafostar
  */
 
-const { Meta } = imports.gi;
+const { GLib, Meta } = imports.gi;
 const ExtensionUtils = imports.misc.extensionUtils;
-const GLib = imports.gi.GLib;
 
 const Gettext = imports.gettext.domain('pip-on-top');
 const _ = Gettext.gettext;
@@ -211,14 +210,14 @@ class PipOnTop
 
     this._saveTimerId = GLib.timeout_add_seconds(GLib.PRIORITY_DEFAULT, 5, () => {
       let rect = this._lastWindowRect;
-      this.settings.set_string("saved-window", JSON.stringify({
+      this.settings.set_string('saved-window', JSON.stringify({
         x: rect.x,
         y: rect.y,
         width: rect.width,
         height: rect.height
       }));
       this._saveTimerId = null;
-      return false;
+      return GLib.SOURCE_REMOVE;
     });
   }
 }
