@@ -115,14 +115,6 @@ class PipOnTop
       window._notifyPipTitleId = window.connect_after(
         'notify::title', this._checkTitle.bind(this));
     }
-    if (!window._windowPositionChangedId) {
-      window._windowPositionChangedId = window.connect_after(
-        'position-changed', this._onWindowChanged.bind(this));
-    }
-    if (!window._windowSizeChangedId) {
-      window._windowSizeChangedId = window.connect_after(
-        'size-changed', this._onWindowChanged.bind(this));
-    }
 
     this._checkTitle(window);
   }
@@ -133,16 +125,17 @@ class PipOnTop
       window.disconnect(window._notifyPipTitleId);
       window._notifyPipTitleId = null;
     }
-    if (window._windowPositionChangedId) {
-      window.disconnect(window._windowPositionChangedId);
-      window._windowPositionChangedId = null;
-    }
-    if (window._windowSizeChangedId) {
-      window.disconnect(window._windowSizeChangedId);
-      window._windowSizeChangedId = null;
-    }
-    if (window._isPipAble)
+    if (window._isPipAble) {
+      if (window._windowPositionChangedId) {
+        window.disconnect(window._windowPositionChangedId);
+        window._windowPositionChangedId = null;
+      }
+      if (window._windowSizeChangedId) {
+        window.disconnect(window._windowSizeChangedId);
+        window._windowSizeChangedId = null;
+      }
       window._isPipAble = null;
+    }
   }
 
   _checkTitle(window)
@@ -170,6 +163,15 @@ class PipOnTop
       un = (isPipWin && this.settings.get_boolean('stick')) ? '' : 'un';
       window[`${un}stick`]();
 
+      if (!window._windowPositionChangedId) {
+        window._windowPositionChangedId = window.connect_after(
+          'position-changed', this._onWindowChanged.bind(this, window, 'position'));
+      }
+      if (!window._windowSizeChangedId) {
+        window._windowSizeChangedId = window.connect_after(
+          'size-changed', this._onWindowChanged.bind(this, window, 'size'));
+      }
+
       /* Repeatedly override new window position so it sticks */
       window._overrideTimeoutId = GLib.timeout_add(GLib.PRIORITY_DEFAULT, 1000, () => {
         window._overrideTimeoutId = null;
@@ -178,24 +180,22 @@ class PipOnTop
     }
   }
 
-  _onWindowChanged(window)
+  _onWindowChanged(window, changed)
   {
-    if (!window._isPipAble)
-      return;
-
     /* Override new window position and size until timeout */
     if (window._overrideTimeoutId) {
       if (this._lastWindowRect) {
         let last = this._lastWindowRect;
-        let current = window.get_frame_rect();
-        /* Change position independently of size to avoid aspect
-         * ratio lock interference */
-        window.move_resize_frame(false, last.x, last.y,
-                                 current.width, current.height);
-        /* Only care about height but width also needs to be applied
-         * to avoid window shrinking (Firefox Bug 1794577) */
-        window.move_resize_frame(false, last.x, last.y,
-                                 last.width, last.height);
+        if (changed == 'position') {
+          /* Change position independently of size to avoid aspect
+           * ratio lock interference */
+          window.move_frame(false, last.x, last.y);
+        } else if (changed == 'size') {
+          /* Only care about height but width also needs to be applied
+           * to avoid window shrinking (Firefox Bug 1794577) */
+          window.move_resize_frame(false, last.x, last.y,
+                                   last.width, last.height);
+        }
       }
     } else {
       this._lastWindowRect = window.get_frame_rect();
