@@ -157,6 +157,7 @@ class PipOnTop
       let un = (isPipWin) ? '' : 'un';
 
       window._isPipAble = true;
+      window._overrideAttempts = 0;
       window[`${un}make_above`]();
 
       /* Change stick if enabled or unstick PipAble windows */
@@ -172,7 +173,6 @@ class PipOnTop
           'size-changed', this._onWindowChanged.bind(this, window, 'size'));
       }
 
-      /* Repeatedly override new window position so it sticks */
       window._overrideTimeoutId = GLib.timeout_add(GLib.PRIORITY_DEFAULT, 1000, () => {
         window._overrideTimeoutId = null;
         return false;
@@ -182,9 +182,13 @@ class PipOnTop
 
   _onWindowChanged(window, changed)
   {
-    /* Override new window position and size until timeout */
+    /* Override new window position changes within a timeout with a maximum number
+     * of attempts. Firefox requires at least 7 overrides (4 position and 3 resize).
+     * Overlapping with "Always on top" windows triggers recursion error without
+     * limiting number of attempts. */
     if (window._overrideTimeoutId) {
-      if (this._lastWindowRect) {
+      window._overrideAttempts++;
+      if (this._lastWindowRect && window._overrideAttempts < 12) {
         let last = this._lastWindowRect;
         if (changed == 'position') {
           /* Change position independently of size to avoid aspect
