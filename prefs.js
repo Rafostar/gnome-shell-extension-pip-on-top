@@ -34,6 +34,7 @@ function fillPreferencesWindow(window)
   });
 
   _addToggle(group, settings, 'Show on all workspaces', 'stick');
+  _addToggle(group, settings, 'Restore last position and size', 'restore-position-size');
 
   page.add(group);
   window.add(page);

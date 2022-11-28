@@ -4,6 +4,9 @@
     <key name="stick" type="b">
       <default>false</default>
     </key>
+    <key name="restore-position-size" type="b">
+      <default>true</default>
+    </key>
     <key name="saved-window" type="s">
       <default>'null'</default>
       <summary>Saved Window</summary>

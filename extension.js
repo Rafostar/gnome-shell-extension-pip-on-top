@@ -168,25 +168,27 @@ class PipOnTop
       un = (isPipWin && this.settings.get_boolean('stick')) ? '' : 'un';
       window[`${un}stick`]();
 
-      if (!window._windowPositionChangedId) {
-        window._windowPositionChangedId = window.connect_after(
-          'position-changed', this._onWindowChanged.bind(this, window, 'position'));
-      }
-      if (!window._windowSizeChangedId) {
-        window._windowSizeChangedId = window.connect_after(
-          'size-changed', this._onWindowChanged.bind(this, window, 'size'));
-      }
-
-      window._overrideTimeoutId = GLib.timeout_add(GLib.PRIORITY_DEFAULT, 500, () => {
-        /* Change size one final time to avoid shrinking when overlapping with
-         * other "Always on top" windows. */
-        if (this._lastWindowRect) {
-          let last = this._lastWindowRect;
-          window.move_resize_frame(false, last.x, last.y, last.width, last.height);
+      if (this.settings.get_boolean('restore-position-size')) {
+        if (!window._windowPositionChangedId) {
+          window._windowPositionChangedId = window.connect_after(
+            'position-changed', this._onWindowChanged.bind(this, window, 'position'));
         }
-        window._overrideTimeoutId = null;
-        return GLib.SOURCE_REMOVE;
-      });
+        if (!window._windowSizeChangedId) {
+          window._windowSizeChangedId = window.connect_after(
+            'size-changed', this._onWindowChanged.bind(this, window, 'size'));
+        }
+
+        window._overrideTimeoutId = GLib.timeout_add(GLib.PRIORITY_DEFAULT, 500, () => {
+          /* Change size one final time to avoid shrinking when overlapping with
+           * other "Always on top" windows. */
+          if (this._lastWindowRect) {
+            let last = this._lastWindowRect;
+            window.move_resize_frame(false, last.x, last.y, last.width, last.height);
+          }
+          window._overrideTimeoutId = null;
+          return GLib.SOURCE_REMOVE;
+        });
+      }
     }
   }
 
