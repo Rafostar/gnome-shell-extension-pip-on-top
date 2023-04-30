@@ -3,7 +3,7 @@
  * Developer: Rafostar
  */
 
-const { Meta } = imports.gi;
+const { GLib, Meta } = imports.gi;
 const ExtensionUtils = imports.misc.extensionUtils;
 
 const Gettext = imports.gettext.domain('pip-on-top');
@@ -21,6 +21,8 @@ class PipOnTop
       'org.gnome.shell.extensions.pip-on-top');
     this._settingsChangedId = this.settings.connect(
       'changed', this._onSettingsChanged.bind(this));
+
+    this._lastWindowRect = JSON.parse(this.settings.get_string("saved-window"));
 
     this._switchWorkspaceId = global.window_manager.connect_after(
       'switch-workspace', this._onSwitchWorkspace.bind(this));
@@ -45,6 +47,11 @@ class PipOnTop
     this._windowAddedId = 0;
     this._windowRemovedId = 0;
 
+    if (this._saveTimerId) {
+      GLib.Source.remove(this._saveTimerId);
+      this._saveTimerId = null;
+    }
+
     let actors = global.get_window_actors();
     if (actors) {
       for (let actor of actors) {
@@ -56,6 +63,10 @@ class PipOnTop
             window.unmake_above();
           if (window.on_all_workspaces)
             window.unstick();
+          if (window._overrideTimeoutId) {
+            GLib.Source.remove(window._overrideTimeoutId);
+            window._overrideTimeoutId = null;
+          }
         }
 
         this._onWindowRemoved(null, window);
@@ -104,6 +115,7 @@ class PipOnTop
       window._notifyPipTitleId = window.connect_after(
         'notify::title', this._checkTitle.bind(this));
     }
+
     this._checkTitle(window);
   }
 
@@ -113,8 +125,21 @@ class PipOnTop
       window.disconnect(window._notifyPipTitleId);
       window._notifyPipTitleId = null;
     }
-    if (window._isPipAble)
+    if (window._isPipAble) {
+      if (window._windowPositionChangedId) {
+        window.disconnect(window._windowPositionChangedId);
+        window._windowPositionChangedId = null;
+      }
+      if (window._windowSizeChangedId) {
+        window.disconnect(window._windowSizeChangedId);
+        window._windowSizeChangedId = null;
+      }
+      if (window._overrideTimeoutId) {
+        GLib.source_remove(window._overrideTimeoutId);
+        window._overrideTimeoutId = null;
+      }
       window._isPipAble = null;
+    }
   }
 
   _checkTitle(window)
@@ -136,12 +161,80 @@ class PipOnTop
       let un = (isPipWin) ? '' : 'un';
 
       window._isPipAble = true;
+      window._overrideAttempts = 0;
       window[`${un}make_above`]();
 
       /* Change stick if enabled or unstick PipAble windows */
       un = (isPipWin && this.settings.get_boolean('stick')) ? '' : 'un';
       window[`${un}stick`]();
+
+      if (this.settings.get_boolean('restore-position-size')) {
+        if (!window._windowPositionChangedId) {
+          window._windowPositionChangedId = window.connect_after(
+            'position-changed', this._onWindowChanged.bind(this, window, 'position'));
+        }
+        if (!window._windowSizeChangedId) {
+          window._windowSizeChangedId = window.connect_after(
+            'size-changed', this._onWindowChanged.bind(this, window, 'size'));
+        }
+
+        window._overrideTimeoutId = GLib.timeout_add(GLib.PRIORITY_DEFAULT, 500, () => {
+          /* Change size one final time to avoid shrinking when overlapping with
+           * other "Always on top" windows. */
+          if (this._lastWindowRect) {
+            let last = this._lastWindowRect;
+            window.move_resize_frame(false, last.x, last.y, last.width, last.height);
+          }
+          window._overrideTimeoutId = null;
+          return GLib.SOURCE_REMOVE;
+        });
+      }
     }
+  }
+
+  _onWindowChanged(window, changed)
+  {
+    /* Override new window position changes within a timeout with a maximum number
+     * of attempts. Firefox requires at least 7 overrides (4 position and 3 resize).
+     * Overlapping with "Always on top" windows triggers recursion error without
+     * limiting number of attempts. */
+    if (window._overrideTimeoutId) {
+      window._overrideAttempts++;
+      if (this._lastWindowRect && window._overrideAttempts < 12) {
+        let last = this._lastWindowRect;
+        if (changed == 'position') {
+          /* Change position independently of size to avoid aspect
+           * ratio lock interference */
+          window.move_frame(false, last.x, last.y);
+        } else if (changed == 'size') {
+          /* Only care about height but width also needs to be applied
+           * to avoid window shrinking (Firefox Bug 1794577) */
+          window.move_resize_frame(false, last.x, last.y,
+                                   last.width, last.height);
+        }
+      }
+    } else {
+      this._lastWindowRect = window.get_frame_rect();
+      this._lazySaveSettings();
+    }
+  }
+
+  _lazySaveSettings()
+  {
+    if (this._saveTimerId)
+      return;
+
+    this._saveTimerId = GLib.timeout_add_seconds(GLib.PRIORITY_DEFAULT, 5, () => {
+      let rect = this._lastWindowRect;
+      this.settings.set_string('saved-window', JSON.stringify({
+        x: rect.x,
+        y: rect.y,
+        width: rect.width,
+        height: rect.height
+      }));
+      this._saveTimerId = null;
+      return GLib.SOURCE_REMOVE;
+    });
   }
 }
 
