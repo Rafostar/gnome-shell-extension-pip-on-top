@@ -6,20 +6,13 @@ import {ExtensionPreferences} from 'resource:///org/gnome/Shell/Extensions/js/ex
 
 function _addToggle(group, settings, title, key)
 {
-  const row = new Adw.ActionRow({
+  const toggleRow = new Adw.SwitchRow({
     title: title,
-  });
-  group.add(row);
-
-  const toggle = new Gtk.Switch({
     active: settings.get_boolean(key),
-    valign: Gtk.Align.CENTER,
   });
-  settings.bind(key, toggle, 'active',
+  settings.bind(key, toggleRow, 'active',
     Gio.SettingsBindFlags.DEFAULT);
-
-  row.add_suffix(toggle);
-  row.activatable_widget = toggle;
+  group.add(toggleRow);
 }
 
 export default class PipOnTopPrefs extends ExtensionPreferences {
