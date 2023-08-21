@@ -1,9 +1,8 @@
-const { Adw, Gio, Gtk } = imports.gi;
-const ExtensionUtils = imports.misc.extensionUtils;
+import Adw from 'gi://Adw';
+import Gio from 'gi://Gio';
+import Gtk from 'gi://Gtk';
 
-function init()
-{
-}
+import {ExtensionPreferences} from 'resource:///org/gnome/Shell/Extensions/js/extensions/prefs.js';
 
 function _addToggle(group, settings, title, key)
 {
@@ -23,18 +22,19 @@ function _addToggle(group, settings, title, key)
   row.activatable_widget = toggle;
 }
 
-function fillPreferencesWindow(window)
-{
-  const settings = ExtensionUtils.getSettings(
-    'org.gnome.shell.extensions.pip-on-top');
+export default class PipOnTopPrefs extends ExtensionPreferences {
+    fillPreferencesWindow(window)
+    {
+      const settings = this.getSettings();
 
-  const page = new Adw.PreferencesPage();
-  const group = new Adw.PreferencesGroup({
-    title: 'Options',
-  });
+      const page = new Adw.PreferencesPage();
+      const group = new Adw.PreferencesGroup({
+        title: 'Options',
+      });
 
-  _addToggle(group, settings, 'Show on all workspaces', 'stick');
+      _addToggle(group, settings, 'Show on all workspaces', 'stick');
 
-  page.add(group);
-  window.add(page);
+      page.add(group);
+      window.add(page);
+    }
 }

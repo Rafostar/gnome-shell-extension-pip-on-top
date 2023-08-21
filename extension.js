@@ -3,13 +3,10 @@
  * Developer: Rafostar
  */
 
-const { Meta } = imports.gi;
-const ExtensionUtils = imports.misc.extensionUtils;
+import Meta from 'gi://Meta';
+import {Extension, gettext as _} from 'resource:///org/gnome/shell/extensions/extension.js';
 
-const Gettext = imports.gettext.domain('pip-on-top');
-const _ = Gettext.gettext;
-
-class PipOnTop
+export default class PipOnTop extends Extension
 {
   enable()
   {
@@ -17,8 +14,7 @@ class PipOnTop
     this._windowAddedId = 0;
     this._windowRemovedId = 0;
 
-    this.settings = ExtensionUtils.getSettings(
-      'org.gnome.shell.extensions.pip-on-top');
+    this.settings = this.getSettings();
     this._settingsChangedId = this.settings.connect(
       'changed', this._onSettingsChanged.bind(this));
 
@@ -143,10 +139,4 @@ class PipOnTop
       window[`${un}stick`]();
     }
   }
-}
-
-function init()
-{
-  ExtensionUtils.initTranslations();
-  return new PipOnTop();
 }
