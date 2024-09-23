@@ -6,7 +6,8 @@
   "settings-schema": "org.gnome.shell.extensions.pip-on-top",
   "shell-version": [
     "45",
-    "46"
+    "46",
+    "47"
   ],
   "url": "https://github.com/Rafostar/gnome-shell-extension-pip-on-top",
   "uuid": "pip-on-top@rafostar.github.com",
