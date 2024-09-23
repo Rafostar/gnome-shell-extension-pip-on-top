@@ -1,5 +1,5 @@
 {
-  "description": "Makes \"Picture-in-Picture\" windows stay on top (even on Wayland session). Compatible with Firefox and Clapper media player.",
+  "description": "Makes \"Picture-in-Picture\" windows stay on top (even on Wayland session). Compatible with Firefox, but may work with few other browsers too.",
   "extension-id": "pip-on-top",
   "gettext-domain": "pip-on-top",
   "name": "PiP on top",
