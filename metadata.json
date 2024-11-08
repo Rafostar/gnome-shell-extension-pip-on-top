@@ -7,7 +7,8 @@
   "shell-version": [
     "45",
     "46",
-    "47"
+    "47",
+    "47.1"
   ],
   "url": "https://github.com/Rafostar/gnome-shell-extension-pip-on-top",
   "uuid": "pip-on-top@rafostar.github.com",
