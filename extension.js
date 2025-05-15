@@ -126,7 +126,9 @@ export default class PipOnTop extends Extension
       || window.title == 'Picture-in-picture'
       || window.title.endsWith(' - PiP')
       /* Telegram support */
-      || window.title == 'TelegramDesktop');
+      || window.title == 'TelegramDesktop'
+      /* Yandex.Browser support YouTube */
+      || window.title.endsWith(' - YouTube'));
 
     if (isPipWin || window._isPipAble) {
       let un = (isPipWin) ? '' : 'un';
