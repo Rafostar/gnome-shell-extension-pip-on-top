@@ -30,6 +30,11 @@ class DBusImpl {
             const window = actor.meta_window;
             if (window && window.get_pid() === pid) {
                 this._extension._setTop(window);
+                
+                // Apply stick setting if enabled in preferences
+                if (this._extension.settings.get_boolean('stick')) {
+                    window.stick();
+                }
                 return;
             }
         }
@@ -41,6 +46,11 @@ class DBusImpl {
             const window = actor.meta_window;
             if (window && window.get_pid() === pid) {
                 this._extension._unsetTop(window);
+                
+                // Always unstick when unsetTop is called
+                if (window.on_all_workspaces) {
+                    window.unstick();
+                }
                 return;
             }
         }
@@ -147,10 +157,6 @@ export default class PipOnTop extends Extension
 
       window.make_above();
       window._isForcedOnTop = true;
-      
-      // Apply stick setting if enabled
-      if (this.settings.get_boolean('stick'))
-          window.stick();
   }
 
   _unsetTop(window) {
@@ -159,10 +165,6 @@ export default class PipOnTop extends Extension
 
       window.unmake_above();
       window._isForcedOnTop = false;
-      
-      // Unstick if it was stuck
-      if (window.on_all_workspaces)
-          window.unstick();
   }
 
   disable()
