@@ -125,6 +125,10 @@ export default class PipOnTop extends Extension
       || window.title == 'Picture in picture'
       || window.title == 'Picture-in-picture'
       || window.title.endsWith(' - PiP')
+      /* Google Meet support */
+      || (window.title.startsWith('Meet -')
+      && (!window.title.endsWith(' Chromium')
+      && !window.title.endsWith(' Firefox')))
       /* Telegram support */
       || window.title == 'TelegramDesktop'
       /* Yandex.Browser support YouTube */
