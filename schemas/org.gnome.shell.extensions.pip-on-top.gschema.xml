@@ -4,5 +4,9 @@
     <key name="stick" type="b">
       <default>false</default>
     </key>
+    <key name="corner" type="s">
+      <default>'bottom-right'</default>
+      <summary>Corner to place the PiP window</summary>
+    </key>
   </schema>
 </schemalist>
