@@ -1,5 +1,5 @@
 {
-  "description": "Makes \"Picture-in-Picture\" windows stay on top (even on Wayland session). Compatible with Firefox, but may work with few other browsers too.",
+  "description": "Keeps \"Picture-in-Picture\" windows always on top in Wayland sessions. PiP windows are detected by their window title, so most players are supported, including Firefox, Chromium based browsers (Brave, Chrome, Yandex.Browser), Telegram Desktop and the Clapper media player. Please note that X11 sessions may work, but it is not supported or maintained.",
   "extension-id": "pip-on-top",
   "gettext-domain": "pip-on-top",
   "name": "PiP on top",
@@ -10,7 +10,8 @@
     "47",
     "48",
     "49",
-    "50"
+    "50",
+    "51"
   ],
   "url": "https://github.com/Rafostar/gnome-shell-extension-pip-on-top",
   "uuid": "pip-on-top@rafostar.github.com",

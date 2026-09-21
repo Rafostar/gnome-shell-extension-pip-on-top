@@ -113,6 +113,13 @@ export default class PipOnTop extends Extension
       window._isPipAble = null;
   }
 
+  _isYandexBrowser(window)
+  {
+    let wmClass = window.get_wm_class();
+
+    return (wmClass != null && wmClass.toLowerCase().includes('yandex'));
+  }
+
   _checkTitle(window)
   {
     if (!window.title)
@@ -127,8 +134,10 @@ export default class PipOnTop extends Extension
       || window.title.endsWith(' - PiP')
       /* Telegram support */
       || window.title == 'TelegramDesktop'
-      /* Yandex.Browser support YouTube */
-      || window.title.endsWith(' - YouTube'));
+      /* Yandex.Browser titles its PiP window after the playing video.
+       * Only trust that on Yandex.Browser windows, otherwise any window
+       * that shows a YouTube page would be mistaken for a PiP one */
+      || (window.title.endsWith(' - YouTube') && this._isYandexBrowser(window)));
 
     if (isPipWin || window._isPipAble) {
       let un = (isPipWin) ? '' : 'un';
