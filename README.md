@@ -12,10 +12,15 @@ git clone "https://github.com/Rafostar/gnome-shell-extension-pip-on-top.git" "pi
 cd pip-on-top@rafostar.github.com
 glib-compile-schemas ./schemas/
 ```
-Additionally if you are running Firefox not in English language, execute `translate.sh` script to generate required translations:
+Optionally generate/update `pip-title-matchers.json` (structured with `firefox`, `chrome` nodes; `update_translations.sh` updates `firefox` + `chrome`):
 ```sh
-chmod +x translate.sh
-./translate.sh
+chmod +x update_translations.sh
+./update_translations.sh
+```
+Update only one browser node:
+```sh
+./update_translations.sh --firefox-only
+./update_translations.sh --chrome-only
 ```
 
 After all is done: logout, login back (or reboot) and enable newly installed extension. Enjoy!
