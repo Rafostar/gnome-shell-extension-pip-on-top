@@ -128,7 +128,9 @@ export default class PipOnTop extends Extension
       /* Telegram support */
       || window.title == 'TelegramDesktop'
       /* Yandex.Browser support YouTube */
-      || window.title.endsWith(' - YouTube'));
+      || window.title.endsWith(' - YouTube'))
+      /* Kasasa support */
+      || window.title.toLowerCase().includes("kasasa");
 
     if (isPipWin || window._isPipAble) {
       let un = (isPipWin) ? '' : 'un';
